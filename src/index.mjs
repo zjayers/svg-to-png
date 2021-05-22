@@ -2,7 +2,7 @@
 
 import path from 'path';
 import fs from 'fs';
-import svg2img from 'svg2img';
+import sharp from 'sharp';
 
 (async () => {
 
@@ -24,15 +24,23 @@ import svg2img from 'svg2img';
     getFilesRecursively(directoryPath);
 
     files.forEach(async (file) => {
-        console.log("Converting: " + file);
 
-        svg2img(file, (error, buffer) => {
+        if (path.parse(file).ext !== '.svg') {
+            return;
+        }
 
-            if (error) {
-                console.error(error);
-            }
+        const sizes = [16, 24, 32, 64, 128];
 
-            fs.writeFileSync(file.replace('.svg', '.png'), buffer);
-        });
+        const svgdata = fs.readFileSync(file, 'utf-8');
+
+        sizes.forEach(async size => {
+            const img = await sharp(Buffer.from(
+                svgdata.replace('18', '100em').replace('18', '100em')
+            ));
+
+            const resized = await img.resize(size);
+            await resized.toFile(`./out/${path.parse(file).name}_${size}.png`);
+        })
     });
+
 })();

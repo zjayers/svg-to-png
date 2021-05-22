@@ -115,6 +115,7 @@ dist/
 
 /files/*
 /files
+/out
 
 # FuseBox cache
 .fusebox/
